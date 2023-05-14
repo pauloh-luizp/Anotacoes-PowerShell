@@ -1,0 +1,393 @@
+2.Essencial do PowerShell==============================================
+=======================================================================
+2.1.Iniciando o PowerShell=============================================
+
+Temos o PowerShell CLI e o ISE (Integrated Scripting Environment)
+
+Verificando a versão do PowerShell:
+  ~$PSVersionTable.PSVersion
+    ou
+  ~(Get-Host).Version
+    ou
+
+2.2.Command-Lets=======================================================
+
+São os comando que utilizam uma conveção baseado em verbos substantivos
+e um parâmetro.Ex: Get, Add, Clear, Close, Move, New, Show, Start, Stop
+
+Usamos "#" para comentários
+
+Os comandos "dir", "ls", "Get-ChildItem" exibem os diretórios
+
+O comando "Write-Host" imprime o texto na tela
+  ~Write-Host "Hello World"
+
+2.3.Me dá um help please===============================================
+
+~Update-Help atualiza o Help
+
+~Get-Help exibe a ajuda sobre algum comando
+
+2.4.CmdLets, funções e Alias===========================================
+
+CmdLets
+  Uma pequena unidade de funcionanlidade relacionada a um conjunto de
+    recursos. Ex: ~get-command -commandtype cmdlet
+
+Funções
+  Podem fazer o mesmo que cmdlets. Ex: ~get-command -commandtype func
+
+Alias
+  Alias são como apelidos para os cmdlets e funções
+
+Buscando por um comando:
+  ~Get-Command -CommandType Cmdlet *eventlog*
+
+Atribuindo um Alias:
+  ~Set-Alias limpar clear-host
+
+2.5.Controlando a exibição (saida) de informações======================
+
+Redirecionadores
+
+Oper
+ |    Pipeline – Passa a saída para o comando subsequente para 
+        processamento
+
+ >    Redireciona a saída para o arquivo especificado. Se o arquivo já
+        existe, o conteúdo atual será substituido
+
+ >>   Redireciona a saída para o arquivo especificado. Se o arquivo já 
+        existe, o novo conteúdo será anexado ao conteúdo atual
+
+ 2>   Redireciona a saída de erro para o arquivo especificado. Se o 
+        arquivo já existe, o conteúdo atual será substituído
+
+ 2>>  Redireciona a saída de erro para o arquivo especificado. Se o 
+        arquivo já existe, o novo conteúdo será anexado ao conteúdo 
+        atual. 
+
+ 2>&1 Redireciona a saída de erro para a  saída padrão.
+
+ 
+Conversão da saída:
+   ~ConvertTo-Tipo
+   Ex:
+    ~Get-Process | ConvertTo-Html | Out-File "Processos.html"
+    Temos as opções: Out-GridView, Out-Host, Out-Null, Out-Printer
+      Out-Sring
+
+O comando "type" é semelhante ao "cat" do Linux
+
+2.6.Filtrando Resultados com Where-Object==============================
+
+Operador  Descricao
+  -lt     Menor que
+  -le     Menor ou igual
+  -gt     Maior que
+  -ge     Maior ou igual
+  -eq     Igual
+  -ne     Não igual
+  -like   Usa wildcards para comparar padrões
+
+~Where-object {$_.Campo operador valor}
+
+Ex:
+  ~Get-service | Where-object {$_.Status -eq "Running"}
+
+2.7.Módulos do PowerShell==============================================
+
+Lista todos os módulos disponíveis
+  ~Get-Module -ListAvailable
+
+~Get-Command -Module "modulo"
+  Lista os comandos daquel modulo
+
+.psm1  Extensão dos modulos do PowerShell
+
+Importanto um modulo:
+  .\Modulo.psm1
+
+
+3.Scripts no PowerShell================================================
+=======================================================================
+3.1.Estrutura de um script=============================================
+
+Executando um comando: ".\"
+
+3.2.Variáveis==========================================================
+
+As variáveis começam com "$" 
+  ~$var = "valor"
+  ~write-host $var
+  ~$var2 = Read-host "Qual o seu nome?" 
+    Solicita uma entrada
+
+O comando "set" lista todas a variáveis do sistema
+
+$env:VARIAVEL_DO_SISTEMA Permite usar as variáveis do sistema
+
+$var.opções Permite fazer tranformações nas variáveis
+
+
+3.3.Arrays=============================================================
+
+$array = @(valor1, valor2, valor3)
+
+3.4.Hash Table=========================================================
+
+$hashT = @{server1="127.0.0.1";server2="127.0.0.2";server3="127.0.0.3"}
+  podemos usar [ordered] para ordenar
+
+#Adicionar
+$hashT["server4]="127.0.0.4"
+
+#Remover
+$hashT.Remove("server4")
+
+#Outros
+  $hashT.count
+  $hashT.values
+
+
+3.5.Operadores Condicionais e Lógicos==================================
+
+Operador      Descricao
+  -lt         Menor que
+  -le         Menor ou igual
+  -gt         Maior que
+  -ge         Maior ou igual
+  -eq         Igual
+  -ne         Não igual
+  -like       Como
+  -notlike    Não como
+  -contains   Contém
+  -notcontains Não contém
+  -math       Coincide
+  -notmath    Não coincide
+  -replace    Substitiu
+
+~"abcdefg" -replace "def", "xyz"
+
+3.6.Select-String======================================================
+
+~Get-Content .\arquivo.txt | Select-String termo1, termo2, termo3
+  Parâmetros:
+    -Context 1,1 Para trazer uma linha acima e uma linha abaixo
+    -NotMath Para aqueles que não contenha
+
+3.7.Expressões regulares===============================================
+
+\d númerico [0-9]
+\w alfanumerico [a-zA-Z0-9_]
+\s caractere de espaço em branco
+.  qualquer caractere exceto nova linha
+() sub-expression
+\  proximo caractere
+
+3.8.IF...ELSE==========================================================
+
+If ($Serv.Status -eq "Running") {
+  Write-host "Servico em execução"
+}
+Else {
+  Write-host "Servico parado"
+}
+
+3.9.Looping com For, ForEach e While===================================
+
+For
+  For (inicio; condicao; proximo valor) {codigo}
+
+ForEach
+  ForEach ($var e itens da coleção) {codigo}
+
+While
+  While (codicao) {codigo}
+
+
+3.10.Criando Funções===================================================
+
+function <nome-da-funcao> {
+  comandos
+}
+
+Para usar parâmetros usamos "param" Ex:
+
+Function soma {
+  param ($a, $b)
+  $resultado = $a + $b
+  Write-Host $resultado
+}
+
+~soma 12 5
+
+3.11.WorkFlows=========================================================
+
+Usado para criar scripts de logan execucao gerenciáveis
+Usando um workflow podemos:
+  -Interromper
+  -Suspender
+  -Reiniciar
+  -Repetir
+  -Execução paralela
+
+Ex:
+workflow <nome> {
+  Parallel 
+  {
+    comandos
+  }
+}
+
+3.12.Jobs e Scheduled Jobs=============================================
+
+Jobs - Permitem a execução de comandos em Background no computador
+  local ou remoto
+
+Start-Job - Inicia um trabalho
+Get-Job - Exibe os trabalhos associados a atual sessão
+Wait-Job - Aguarda pelo trabalho até que esteja pronto
+Receive-Job - Exibe o resultado de um trabalho dem background
+Stop-Job - Para um trabalho
+Remove-Job - Remove um trabalho
+
+#Coloca em backgroud
+~$wfjob = workflowQualquer -AsJob
+
+#Volta para foreground
+~Receive-Job $wfjob
+
+#Suspende o job
+~Suspend-Job $wfjob 
+
+#Para o job
+Stop-Job $wfjob
+
+
+Scheduled Jobs - Permite a execução recorrente de jobs de maneira 
+  agendada
+
+$diario = New-JobTrigger -Daily -at 3am
+$umavez = New-JobTrigger -Once (Get-Date).AddHours(1)
+$semanal = New-JobTrigger -weekly -DaysOfWeek Monday -At 6pm
+
+Register-ScheduledJob -Name Backup -Trigger $diario -ScriptBlock {
+  comandos}
+
+Get-SheduledJob Backup | Unregistrer-ScheduledJob
+
+
+3.13.New-Object - Usando o Wscript=====================================
+
+Usa-se o New-Object para trabalhar com componentes COM (Component 
+  Object Model). Os componentes variam desde as várias bibliotecas 
+  incluidas no WSH (Windows Script Host) até aplicativos de ActiveX.
+  New-Object -ComObject WScript.Shell
+  New-Object -ComObject WScript.Network
+  New-Object -ComObject Scripting.Dictionary
+  New-Object -ComObject Scripting.FileSystemObject
+
+$wshell = New-Object -com WScript.Shell
+$wshell.Run("Notepad")
+$wshell.AppActivate("Notepad")
+Start-Sleep 1
+$wshell.SendKeys("Interessante!!!")
+
+4.Gerenciamento com PowerShell=========================================
+4.1.Executando o PowerShell Remotamente================================
+
+O PowerShell suporta sessões persistentes ou resilientes
+Invoke-Command - mostra as informações no nosso console
+
+Podemos conectar via:
+  -CLI
+  -PowerShell ISE
+  -Server Manager do Windows Server
+
+Ativamos o acesso remoto usando o comando "Enable-PSRemoting"
+
+Execução remota do PowerShell em um computador, retorando para o nosso
+  console a saida do comando
+  ~Invoke-Command -ComputerName <nome> -ScriptBlock {comados}
+
+Execução interativa do PowerShell
+  ~Enter-PSSession <nome-do-computador>
+  ~Exit-PSSession
+
+4.2.Sessões Persisitentes usando PSSession, Invoke-Command e Jobs======
+
+#Criamos uma sessão
+$s = New-PSSession -name <nome-do-computador>
+
+#Sessão persistente usando Jobs
+Invoke-Command -Session $s -ScriptBlock {comandos} 
+  -AsJob -JobName <nome>
+
+#Verificando o job
+Get-Job -Name <nome> | Recive-Job
+
+#Desconectando
+Disconnect-PSSession $s
+
+
+4.3.PowerShell remoto usando máquina fora do dominio===================
+
+Colocamos a máquina fora do dominio dentro da lista de máquinas confia
+  veis
+
+~winrm set winrm/config/client @{TrustedHosts="<nome>"}
+  ou
+~Set-Item WSMan:\localhost\Client\TrustedHosts "<nome>"
+  -Concatente para colocar mais de um
+
+Sessão em uma máquina fora do domínio:
+~New-PSSession -ComputerName <nome> -Credential <dominio>\<usuario>
+
+
+4.4.Salvando credenciais para scripts de acesso remoto=================
+
+$cred = Get-Credential <dominio>\<usuario>
+New-PSSession -ComputerName (Get-Content C:\srv.txt) -Credential $cred
+
+
+4.5.Acessando o PowerShell através da WEB com o PSWA===================
+
+4.6.Renomeando Computadores============================================
+
+$info = Get-WinObject -Class Win32_ComputerSystem
+$info.Rename("<novo-nome>")
+Restart-Computer
+
+4.7.Alterando IP e adicionando o computador no AD======================
+
+#Mudando o IP
+Get-NetIPConfiguration
+New-NetIPAddress <IP> -InterfaceAlias <nome> --DefaultGateway <IP>
+  -AddressFamily IPv4 -PrefixLength 24
+
+#Trocando o DNS
+Set-DnsClientServerAddress -InterfaceAlias <nome> -ServerAddress <IP>
+
+#Colocando no dominio
+Add-Computer -ComputerName <nome> -DomainName <dominio> -Restart
+
+
+4.8.Gerenciando o Active Directory=====================================
+
+#Exibe os comando para serem usados na administracao do AD
+Get-Command -Module ActiveDirectory
+
+Get-Command new-ad*
+Get-Command get-ad*
+
+#Criando um usário
+New-AdUser <usu.ario> -Parametros
+
+#Removendo o usuário
+Get-AdUser <usuario> | Remove-AdUser
+
+#Buscando os usuários do AD
+Get-AdUser -Filter * | <usuario>
+Get-AdUser -Filter * | where {$_.enabled -eq $false }
+
