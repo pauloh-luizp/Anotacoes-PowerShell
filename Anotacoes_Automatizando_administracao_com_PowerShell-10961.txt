@@ -191,7 +191,157 @@ Desligando o sistema
 =======================================================================
 Usando variáveis=======================================================
 
+$var.GetType()
 
+
+Trabalhando com as variáveis===========================================
+
+$var.ToUpper()
+$var.ToLower()
+$TimeDate.Day
+$TimeDate.Hour
+$TimeDate.DayOfWeek
+$TimeDate.Year
+$TimeDate.AddDays(100)
+
+
+Trabalhando com arrays e hash tables===================================
+
+Arrays:
+  $PCs = "PC01","PC02","PC03"
+  [System.Array]$Computers = "PC01" 
+    cria um array
+  $PCs += "PC04"
+    adiciona no final do array
+  $PCs.removeAt(2)
+    remove
+
+HashTable: Semelhante a um array só que com duas colunas, na primeira
+  coluna armazena uma chave primária e a na segunda coluna um valor
+  
+  $HashT = @{"PC01" = "192.168.0.10"; "PC02" = "10.0.0.10"}
+  
+  $HashT.Add("PC03", "172.16.0.10")
+
+
+9.Scripts básicos======================================================
+=======================================================================
+Introdução aos scripts=================================================
+
+PowerShell Galery, ScriptCenter, GitHub do PowerShell
+
+Restrições na execução de scripts
+  ~Get-ExecutionPolicy -List
+  ~Set-ExecutionPolicy
+    -Unrestricted: qualquer script pode ser rodado
+    -RemoteSigned: somente aqueles assinados digitalmente
+    -AllSigned: todos precisam ser assinados digitalmente
+    -Restricted: nenhum script é permitido
+    -ByPass: não há confirmação para rodar o script
+
+Assinando um script digitalmente
+
+$cert2code = Get-ChildItem -Path cert:\currentuser\my -CodeSigningCert
+
+Set-AuthenticodeSignature -FilePath "c:\Script.ps1" 
+  -Certificate $cert2code
+
+
+Construindo Scripts====================================================
+
+switch ($opc){
+  1 {
+  }
+  2 {
+  }
+  Default {
+  }
+}
+
+switch -wildcard ($opc){
+  "*1" {
+  }
+  "*2" {
+  }
+  Default {
+  }
+}
+
+Do {
+  comandos
+} While(condicao)
+
+Do {
+  comandos
+} Until(condicao)
+
+
+Importando dados de arquivos variáveis=================================
+
+Get-Content -Path c:\ -Include "*.txt", "*.csv"
+Get-Content c:\User.json | convertFrom-json
+
+
+10.Avançando nos scripts===============================================
+=======================================================================
+Solicitando entradas dos usuários======================================
+
+$Answer = Read-Host "Input you Answer"
+$Credent = Get-credential
+
+$Credent | Export-clixml c:\AdminCredent.xml
+
+Exibindo opções de selecção na tela
+  ~Get-Service | Out-GridView -PassThru -Title "Services" | 
+    Stop-service -whatif
+
+Passando parâmetros: Criamos um script param.ps1 contendo:
+Param(
+  [string]$ComputerName
+  [int]$EventId
+)
+
+No PowerShell:
+
+.\Param.ps1 -ComputerName <nome> -EventID <id>
+
+
+Visão geral sobre documentação dos scripts=============================
+
+Comentários com "#" blocos de comentários com "<# #>"
+Os comentário iniciais colocamos com um "." no inicio e colocamos em
+  letras maiusculas
+
+
+Resolvendo problemas e manipulando erros===============================
+
+Os erros são armazenados em uma variável padrão "$Error[0]"
+
+Utilizando o parâmetro "-ErrorAction" podemos especificar o que será
+  feito em caso de erro ao executar o comando
+    Stop para a execução
+    inquire pergunta o que fazer
+
+A variável "$ErrorActionPreference" diz a tratativa padrãodo do erros
+
+Podemos usar Try and Cat
+
+Try {
+  get-wmiobject -class win32_disk -ComputeName $Comp -ErrorAction stop
+} Cath {
+  write-host "Fail running the command"
+} Finally {
+  write-host "Finished running the command"
+}
+
+
+Funções e modulos======================================================
+
+Podemos criar modulos e colocarmos ele dentro da pasta padrão de 
+  modulos em: c:\Windows\System32\WindowsPowerShell\v1.0\Modules
+
+Existe o dotsourcing que permite abrir um powershell dentro de um 
+  outro powershell
 
 
 11.Administrando computadores Remotos==================================
@@ -231,3 +381,49 @@ Connect-PSSession -Id <id>
 Exit-PSSession
 
 
+12.Usando Background Job e Scheduled Jobs==============================
+=======================================================================
+Usando Background Jobs=================================================
+
+Pertence ao Microsoft.PowerShell.Core
+
+O parâmetro "-AsJob" executa o job em background
+
+Com um Background Job sabemos quando a execução terminou e conseguimos
+  ver as saidas geradas
+
+
+Usando Scheduled Jobs==================================================
+
+$Options = New-ScheduledJobOption -StartIfOnBattery -StartIfIdle
+  -RunElevated -WakeToRun
+
+$Trigger = New-JobTrigger -Weekly
+
+$Register-SheduledJob -Name <nome> -ScriptBlock {Update-Help -Module *
+  -Force} -Trigger $Trigger -SheduledJobOption $Options
+
+#Verficando os jobs agendados
+  ~taskschd.msc
+
+
+13.Usando técnicas Avançadas do PowerShell=============================
+=======================================================================
+Criando PowerShell Profiles============================================
+
+Criando um perfil:
+  New-Item -Path $profile -Type file -Force
+
+Colocamos nossas preferências dentro do aquivo criado em forma de 
+  comando powershell
+
+
+Usando técnicas avançadas no PowerShell================================
+
+Comparadores de busca
+ -In
+ -NotIn
+ -Contain
+ -NotContain
+ -Match
+ -NotMatch
