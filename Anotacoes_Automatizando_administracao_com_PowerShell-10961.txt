@@ -107,6 +107,7 @@ Convertendo as saídas do pipeline======================================
 
 
 5.Entendendo como o Pipeline funciona==================================
+=======================================================================
 Enviando dados para o pipeline=========================================
 
 Get-Process -name notepad | Stop-Process
@@ -119,12 +120,82 @@ Considerações avançadas para o uso do pipeline=========================
     -Filter {city -eq "Curitiba"})
 
 6.Usando PSProviders aos PSDrives======================================
+=======================================================================
 Usando PSProviders=====================================================
+
+Fornecem as estruturas e serviços que os Drivers precisam
+
+~Get-PSProviders
+
+
+Usando PSDrives========================================================
+
+~Get-PSDrive
+
+Podemos usar o help para ver o manual de utilização do Driver
+
+~help FileSystem
+
+Trabalhar com PSDrive é uma forma de estruturar de padronizar a estru-
+  tura independente do sistema operacional. Abstrair a estrutura logica
+  do sistema de arquivos
+
+Criando um Drive:
+  ~New-PSDrive -Name <nome> -PSProvider <provider> -Root c:\
+
+
+7.Buscando informações de sistema usando o WMI e o CIM=================
+=======================================================================
+Entendendo WMI e CIM===================================================
+
+WMI - Windows Managemnt Instrumentation
+  Infraestrutura para dados de gerenciamento e operações em sistemas
+  operacionais baseados no Windows e outros produtos Microsoft
+  O WMI é construído com base nos padrões WBEM e CIM da 
+  Distributed Management Task Force (DMTF). As informações do sistema
+  nas camadas de hardware e software são expostas por meio de uma 
+  interface padrão por meio do WMI. O resultado líquido disso é a 
+  capacidade de visualizar facilmente e, às vezes, modificar as 
+  informações do sistema e as definições de configuração.
+
+CIM - Common Interface Model
+ O CIM fornece uma definição comum de informações de gerenciamento 
+ para sistemas, redes, aplicativos e serviços, e permite extensões de 
+ fornecedores. As definições comuns da CIM permitem que os fornecedores
+ troquem informações de gerenciamento semanticamente ricas entre 
+ sistemas em toda a rede.
+
+
+Buscando e filtrando dados usando o WMI e o CIM========================
+
+Get-WmiObject -Namespace root\CIMv2 -list
+
+Get-CimClass -Namespace 
+
+Conseguimos usar SQL nas consultas
+~Get-CimInstance -Query "SELECT * FROM win32_logicaldisk 
+  WHERE DriveType = 3"
+
+Sessões
+~New-CimSession -ComputerName <nome>
+
+
+Fazendo mudanças no sistema via WMI/CIM================================
+
+Desligando o sistema
+~Invoke-WmiMethod -Class win32_operatingSystem -Name win32Shutdown
+  -ArgumentList 0 -ComputerName <nome>
+
+
+8.Trabalhando com variáveis, arrays e hash tables======================
+=======================================================================
+Usando variáveis=======================================================
 
 
 
 
 11.Administrando computadores Remotos==================================
+=======================================================================
 Usando o controle remoto básico========================================
 
 Ativando o controle remoto
