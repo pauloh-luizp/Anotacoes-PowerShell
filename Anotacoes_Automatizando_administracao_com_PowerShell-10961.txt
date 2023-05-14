@@ -1,0 +1,162 @@
+2.Começando a usar o PowerShell========================================
+=======================================================================
+Entendendo a sintaxe dos comandos======================================
+
+Encontrando os comandos================================================
+
+
+3.CMDLETs para adminstração============================================
+=======================================================================
+CMDLETs para adminstração do AD========================================
+
+#Criando usuário
+~New-ADUser "Henry" -AccountPassword (ConvertTo-SecureString "senha"
+  -asplaintext -force) -DisplayName "Henry" -Enable $true
+
+#Gestão de grupo
+~New-ADGroup "Win-Support" -GroupScope Global
+
+#Adicionado usuários ao grupo
+~Add-ADGroupMember "Win-Support" -Members "user1","user2"
+
+#Adcionando computadores ao AD
+~New-ADComputer <nome> -Enable $true
+
+#Adicionando nova unidade organizacional
+~New-ADOrganizationalUnit "OU-support"
+
+
+CMDLETs para administracao de Redes====================================
+
+#Configurando o IP
+~New-NetIPAddress -IPAddress 192.168.0.171 -InterfaceAlias "Ethernet"
+  -PrefixLength 16 -DefaultGateway 192.168.0.254
+
+#Comandos de DNS
+~Get-DnsClient
+
+#Comandos de ServerZone
+~Get-DnsServerZone
+
+
+Outros CMDLETs para adminstracao de servidores=========================
+
+~Get-Command -Module GroupPolicy
+
+#Criando GPO
+~New-GPO -Name "Win-Support"
+
+#Exibindo todas as aplicacoes instaladas
+~Get-WindowsFeature
+
+#Instalando um recurso do sistema
+~Install-WindowsFeature <recurso>
+
+#Comando voltados para o Hyper-V
+~Get-Command -Module Hyper-V
+
+4.Trabalhando com o PipeLine do PowerShell=============================
+=======================================================================
+Seleção, organizacao e medindo os objetos no pipeline==================
+
+#Ordenando
+Get-Service | Sort-Object -Property Status,Name -Descending 
+  | fw -Groupby Status
+
+#Medindo
+Get-Process | Measure-Object
+
+#Selecionando
+Get-Process | Sort-Object -Property VM | Select-Object -First 30
+
+#Unicos
+ | Select-Object -Unique
+
+#Usando HashTables
+Get-Process | Select-Object -Property Name, ID, @{n="Virtual Memory"; 
+  e={$PSItem.vm / 1MB}}, @{n="Page Memory"; e={$PSItem.pm /1MB}}
+
+Filtrando objetos enviados do pipeline=================================
+
+-ceq case sensitive equal
+
+Get-Services | Where-Object Status -eq "Running"
+Get-Services | Where -FilterScript {$PSItem.Status -eq "Running"}
+Get-Services | ? -FilterScript {$_.Status -eq "Running"}
+
+
+Enumerando objetos vindo do pipeline===================================
+
+Get-ChildItem -Path c:\Exemple -File | ForEach-Object <acao>
+Get-ChildItem -Path c:\Exemple -File | % <acao>
+
+
+Convertendo as saídas do pipeline======================================
+
+ | Out-File -FilePath c:\arq.csv
+
+ | ConvertTo-csv | Out-File -FilePath c:\arq.csv
+
+ | Export-csv c:\arq.csv
+
+ | Export-CliXml c:\arq.xml
+
+ | Out-Printer
+
+ | Out-GridView
+
+
+5.Entendendo como o Pipeline funciona==================================
+Enviando dados para o pipeline=========================================
+
+Get-Process -name notepad | Stop-Process
+
+
+Considerações avançadas para o uso do pipeline=========================
+
+#Comandos entre parenteses, executa o que está em parenteses primeiro
+  ~Get-ADGroup "Win-Support" | Add-ADGrupMember -Members (Get-ADuser 
+    -Filter {city -eq "Curitiba"})
+
+6.Usando PSProviders aos PSDrives======================================
+Usando PSProviders=====================================================
+
+
+
+
+11.Administrando computadores Remotos==================================
+Usando o controle remoto básico========================================
+
+Ativando o controle remoto
+~Enable-PSRemoting
+
+Sessão remota persistentes
+~Enter-PSSession -ComputerName <nome>
+
+Sessão remota eferemera
+~Invoke-Command -ComputerName <nome> -ScriptBlock {Get-service}
+  *permitido no máximo 32 comandos
+
+
+Usando técnicas avançadas de acesso remoto=============================
+
+Usando parâmetros:
+  
+$log = "Security"
+$quant = 15
+
+Invoke-Command -ComputerName <nome> -ScriptBlock {
+  Param ($LogRem, $QuantRem)
+  Get-EventLog -LogName $LogRem -Newest $QuantRem | ft -AutoSize
+} -ArgumentList $Log, $Quant
+
+
+Usando PSSessions======================================================
+
+New-PSSession <nome>
+
+Connect-PSSession -Id <id>
+
+Exit-PSSession
+
+
